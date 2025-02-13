@@ -1,2 +1,3 @@
-AI Models/
+AI Models/*
+!AI Models/downloader.py
 .venv
