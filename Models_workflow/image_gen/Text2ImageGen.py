@@ -1,7 +1,7 @@
 from diffusers import StableDiffusionPipeline
 import torch
 
-def generate_image(prompt, model_path="./AI Models/Text2Image/stable-diffusion-v1-5", output_path="output.png"):
+def generate_image(prompt, model_path="../AI Models/Text2Image/stable-diffusion-v1-5", output_path="output.png"):
     """
     Generates an image from a text prompt using Stable Diffusion.
     

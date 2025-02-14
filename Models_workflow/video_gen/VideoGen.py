@@ -11,15 +11,13 @@ from diffusers import (
     CogVideoXTransformer3DModel
 )
 from diffusers.utils import export_to_video
-
-from img2vid_pipeline import CogVideoXImg2VidPipeline
-
+from . import img2vid_pipeline
 
 @torch.no_grad()
 def generate_video(
     prompt: str,
     image_path: str,
-    model_path: str = "./AI Models/Video-Image2Video/cogvideox-2b-img2vid",
+    model_path: str = "../AI Models/Text-Image2Video/cogvideox-2b-img2vid",
     lora_path: str = None,
     lora_rank: int = 128,
     output_path: str = "./output.mp4",
@@ -63,7 +61,7 @@ def generate_video(
         model_path, subfolder="scheduler"
     )
 
-    pipe = CogVideoXImg2VidPipeline(
+    pipe = img2vid_pipeline.CogVideoXImg2VidPipeline(
         tokenizer=tokenizer,
         text_encoder=text_encoder,
         transformer=transformer,
@@ -74,7 +72,6 @@ def generate_video(
 
     # 2. Set Scheduler.
     pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
-    # pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
     # 3. Set the precision and enable CPU offloading.
     pipe = pipe.to(dtype=dtype)

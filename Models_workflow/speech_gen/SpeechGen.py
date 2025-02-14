@@ -6,7 +6,7 @@ from parler_tts import ParlerTTSForConditionalGeneration
 from transformers import AutoTokenizer
 import soundfile as sf
 
-def generate_speech(prompt, description, model_path="./AI Models/Text2Speech/parler-tts-mini-v1.1", output_file="parler_tts_out.wav"):
+def generate_speech(prompt, description, model_path="../AI Models/Text2Speech/parler-tts-mini-v1.1", output_file="parler_tts_out.wav"):
     """
     Generates speech from text using ParlerTTS and saves the output as a WAV file.
 

@@ -2,7 +2,7 @@ import torch
 import torchaudio
 from transformers import SeamlessM4Tv2Model, AutoProcessor
 
-def speech_to_text(audio_path: str, model_path: str = "./AI Models/Speech2Text/seamless-m4t-v2-large") -> str:
+def speech_to_text(audio_path: str, model_path: str = "../AI Models/Speech2Text/seamless-m4t-v2-large") -> str:
     """
     Converts speech to text using the SeamlessM4Tv2Model.
 

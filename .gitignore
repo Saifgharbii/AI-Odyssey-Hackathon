@@ -1,3 +1,9 @@
 AI Models/*
 !AI Models/downloader.py
 .venv
+Base_server_testing
+*.pyc
+*venv
+*.env
+*__pycache__
+
