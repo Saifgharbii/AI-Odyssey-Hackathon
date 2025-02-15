@@ -6,4 +6,4 @@ Base_server_testing
 *venv
 *.env
 *__pycache__
-
+Models_workflow/image_gen/xflux/
