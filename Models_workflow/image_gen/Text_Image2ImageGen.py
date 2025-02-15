@@ -2,7 +2,7 @@ import os
 import torch
 from PIL import Image
 from huggingface_hub import hf_hub_download
-from src.flux.xflux_pipeline import XFluxPipeline
+from xflux.src.flux.xflux_pipeline import XFluxPipeline
 
 def download_model_and_lora(model_dir, lora_dir, lora_repo_id, lora_name):
     os.makedirs(model_dir, exist_ok=True)
@@ -17,7 +17,7 @@ def download_model_and_lora(model_dir, lora_dir, lora_repo_id, lora_name):
     
     return lora_path
 
-def generate_image(prompt, image_path, model_dir="AI Models/Text2Image/flux-dev-fp8", lora_dir="AI Models/Text2Image/flux-dev-fp8", lora_repo_id="XLabs-AI/flux-lora-collection", lora_name="realism_lora.safetensors", guidance=4, width=1024, height=1024, num_steps=25, seed=123456789, save_path="results"):
+def generate_image(prompt, image : Image.Image, model_dir="../AI Models/Text2Image/flux-dev-fp8", lora_dir="../AI Models/Text2Image/flux-dev-fp8", lora_repo_id="XLabs-AI/flux-lora-collection", lora_name="realism_lora.safetensors", guidance=4, width=1024, height=1024, num_steps=25, seed=123456789, save_path="results"):
     device = "cuda" if torch.cuda.is_available() and torch.cuda.get_device_properties(0).total_memory >= 6e9 else "cpu"
     offload = device == "cuda" and torch.cuda.get_device_properties(0).total_memory < 8e9
     
@@ -30,16 +30,8 @@ def generate_image(prompt, image_path, model_dir="AI Models/Text2Image/flux-dev-
     # Load the model pipeline
     xflux_pipeline = XFluxPipeline("flux-dev-fp8", device, offload)
     xflux_pipeline.set_lora(lora_path, lora_repo_id, lora_name, lora_weight=0.9)
-    
-    # Load image prompt
-    image = Image.open(image_path) if image_path else None
-    
+        
     # Generate image
     result = xflux_pipeline(prompt=prompt, controlnet_image=image, width=width, height=height, guidance=guidance, num_steps=num_steps, seed=seed)
     
-    # Save result
-    ind = len(os.listdir(save_path))
-    result_path = os.path.join(save_path, f"result_{ind}.png")
-    result.save(result_path)
-    print(f"Image saved to {result_path}")
-    return result_path
+    return result

@@ -48,47 +48,48 @@ PRODUCT_EXTRACTION_PROMPT = """You are a marketing assistant. Extract product de
 4. call_to_action: A short, actionable phrase (e.g., "Shop now!")."""
 
 CONTENT_CREATION_PROMPT = """You are a viral content creator. Generate content for a 10-second TikTok/X post. Return a JSON with:
-1. script: A paragraph with the 10-second narration (120-150 words) and a description of the speaker's tone.
+1. script: A paragraph with the 10-second narration (120-150 words)
 2. audio_prompt: A paragraph describing the voiceover and the speaker's tone for the post that will be combined with the video.
 3. video_prompt: A paragraph describing a single-scene video (10s) with product focus and visual style.
 4. image_prompt: A paragraph describing a static image for the product post.
 5. caption: A single paragraph combining the caption and hashtags (125 chars max)."""
 
-def process_user_input(user_input: str, is_audio: bool = False):
-    # Convert audio to text if needed
-    if is_audio:
-        user_input = speech_to_text(user_input)
-    
+TEST_TRENDS = """On February 14, 2025, Valentine's Day celebrations showcased evolving trends. Notably, consumers shifted from traditional gifts toward experiential presents, with interest in massages, event tickets, and travel surging by 104%, 238%, and 59%\ respectively, while candy and cookie interest declined by 13%. 
+ Social media platforms, especially TikTok, influenced gift choices and planning, with users seeking unique and personalized experiences. 
+ Additionally, sales of tinned fish, such as anchovies and sardines, increased by over 30%\ at Selfridges, driven by social media influencers and celebrity chefs. 
+ These trends reflect a broader move toward meaningful, diverse, and unconventional expressions of affection.
+"""
+
+
+def process_user_input(user_input: str, trends_analysis: str = TEST_TRENDS) -> dict:    
     # First LLM Call - Product Extraction
     extraction_model = genai.GenerativeModel(
         model_name="gemini-2.0-pro-exp-02-05",
         generation_config={"response_mime_type": "application/json"},
         system_instruction=PRODUCT_EXTRACTION_PROMPT
     )
-    product_info = json.loads(extraction_model.start_chat().send_message(user_input).text)
     
-    # Get Trend Analysis (Replace with actual API call)
-    trends = get_trend_analysis()  # Assume returns string of trending topics
-    
+    extraction_chat = extraction_model.start_chat()
+    product_info_response =  extraction_chat.send_message(user_input)
+    product_info = json.loads(product_info_response.text)
+
     # Second LLM Call - Content Creation
     creation_model = genai.GenerativeModel(
         model_name="gemini-2.0-pro-exp-02-05",
         generation_config={"response_mime_type": "application/json"},
-        system_instruction=CONTENT_CREATION_PROMPT.format(trends=trends)
+        system_instruction=CONTENT_CREATION_PROMPT.format(trends=trends_analysis)
     )
-    
-    final_content = json.loads(creation_model.start_chat().send_message(
-        f"Product details: {json.dumps(product_info)}\nTrend context: {trends}"
-    ).text)
-    
+
+    creation_chat = creation_model.start_chat()
+    final_content_response =  creation_chat.send_message(
+        f"Product details: {json.dumps(product_info)}\nTrend context: {trends_analysis}"
+    )
+    final_content = json.loads(final_content_response.text)
+
     return final_content
 
 # Example Usage
 if __name__ == "__main__":
-    # For audio input
-    audio_content = process_user_input("path/to/audio.wav", is_audio=True)
-    
     # For text input
     text_content = process_user_input("New wireless headphones with 40hr battery and noise cancellation")
-    
     print(json.dumps(text_content, indent=2))

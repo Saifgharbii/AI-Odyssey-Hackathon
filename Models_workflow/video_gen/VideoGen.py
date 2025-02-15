@@ -1,7 +1,3 @@
-import sys
-sys.path.append('..')
-import argparse
-
 import torch
 from PIL import Image
 from transformers import T5EncoderModel, T5Tokenizer
@@ -12,11 +8,12 @@ from diffusers import (
 )
 from diffusers.utils import export_to_video
 from . import img2vid_pipeline
+import io
 
 @torch.no_grad()
 def generate_video(
     prompt: str,
-    image_path: str,
+    image: Image.Image,
     model_path: str = "../AI Models/Text-Image2Video/cogvideox-2b-img2vid",
     lora_path: str = None,
     lora_rank: int = 128,
@@ -68,7 +65,6 @@ def generate_video(
         vae=vae,
         scheduler=scheduler,
     )
-    image = Image.open(image_path).convert("RGB")
 
     # 2. Set Scheduler.
     pipe.scheduler = CogVideoXDDIMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
@@ -92,5 +88,7 @@ def generate_video(
         generator=torch.Generator().manual_seed(seed),  # Set the seed for reproducibility
     ).frames[0]
 
-    # 5. Export the generated frames to a video file. fps must be 8 for original video.
-    export_to_video(video_generate, output_path, fps=8)
+    output_stream = io.BytesIO()
+    export_to_video(video_generate, output_stream, fps=8)
+    output_stream.seek(0)
+    return output_stream

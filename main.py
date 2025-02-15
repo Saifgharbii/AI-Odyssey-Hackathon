@@ -1,106 +1,120 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from .Models_workflow.image_gen import Text2ImageGen
-from .Models_workflow.speech_gen import SpeechGen
-from .Models_workflow.video_gen import VideoGen
-from .Models_workflow.speech_recognition import Speech2Text
-import os
+from flask import Flask, request, jsonify, Response
 import requests
+from moviepy import VideoFileClip, AudioFileClip
+import io
+import threading
+from Gemenai_workflow.Gemanai_workflow import process_user_input
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # Enable CORS for all routes
 
-BASE_SERVER_URL = "http://127.0.0.1:5000/upload"  # Change this to your base server URL
+# Configuration
+AUDIO_SERVER = "http://localhost:5001/generate_audio"
+VIDEO_SERVER = "http://localhost:5002/generate_video"
+IMAGE_SERVER = "http://localhost:5002/generate_image"
+SPEECH_SERVER = "http://localhost:5002/recognize_speech"
 
-UPLOAD_FOLDER = "uploads"
-OUTPUT_FOLDER = "outputs"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+def mix_audio_video(video_bytes, audio_bytes):
+    """
+    Mixes audio and video into a single video file.
 
-# Error handling for CORS preflight requests
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    return response
+    Args:
+        video_bytes (bytes): The video file as bytes.
+        audio_bytes (bytes): The audio file as bytes.
 
-@app.route("/")
-def home():
-    return jsonify({"message": "AI Model Server is running!"})
+    Returns:
+        bytes: The mixed video file as bytes.
+    """
+    # Save to temporary files
+    with open("temp_video.mp4", "wb") as f:
+        f.write(video_bytes)
+    with open("temp_audio.wav", "wb") as f:
+        f.write(audio_bytes)
+    
+    # Mix using moviepy
+    video = VideoFileClip("temp_video.mp4")
+    audio = AudioFileClip("temp_audio.wav")
+    final_video = video.set_audio(audio)
+    
+    # Export to bytes
+    output = io.BytesIO()
+    final_video.write_videofile(output, codec="libx264", audio_codec="aac")
+    return output.getvalue()
 
+@app.route('/generate_content', methods=['POST'])
+def handle_content_creation():
+    """
+    Handles the content creation workflow.
+    """
+    user_input = ""
+    print("those are request : {request}")
+    # Handle audio/text input
+    if 'audio' in request.files:
+        audio_file = request.files['audio']
+        # Convert speech to text
+        response = requests.post(SPEECH_SERVER, files={'audio': audio_file})
+        user_input = response.json().get('user_text', '')
+    else:
+        user_input = request.json.get('text')
+        if not user_input:
+            return jsonify({"error": "Either 'audio' or 'text' must be provided"}), 400
+    print(user_input)
+    # Process user input
+    content_specs = process_user_input(user_input)
+    print(f"those are the content from llm {content_specs['image_prompt']}")
 
-@app.route("/speech-to-text", methods=["POST"])
-def speech_to_text():
-    if "audio" not in request.files:
-        return jsonify({"error": "No audio file provided"}), 400
+    # Generate image
+    image_response = requests.post(IMAGE_SERVER, json={
+        "prompt": content_specs['image_prompt']
+    })
+    print(f"this is image response : {image_response}")
 
-    audio_file = request.files["audio"]
-    audio_path = os.path.join(UPLOAD_FOLDER, audio_file.filename)
-    audio_file.save(audio_path)
+    # Generate video
+    generate_video(content_specs, image_response.content)
 
-    text_output = Speech2Text.speech_to_text(audio_path=audio_path)
+    # Then generate audio
+    generate_audio(content_specs)
 
-    # Send to base server
-    response = requests.post(BASE_SERVER_URL, json={"text_output": text_output})
+    # Mix audio and video
+    mixed_video = mix_audio_video(video_bytes=video_result, audio_bytes=audio_result)
 
-    return jsonify({"transcribed_text": text_output, "base_response": response.json()})
+    # Return final video
+    return Response(mixed_video, mimetype='video/mp4')
 
+def generate_video(specs, image_bytes):
+    """
+    Generates a video using the video server.
 
-@app.route("/text-to-image", methods=["POST"])
-def text_to_image():
-    data = request.json
-    prompt = data.get("prompt")
-    if not prompt:
-        return jsonify({"error": "No prompt provided"}), 400
+    Args:
+        specs (dict): Content specifications.
+        image_bytes (bytes): The image file as bytes.
 
-    output_path = os.path.join(OUTPUT_FOLDER, "generated_image.png")
-    Text2ImageGen.generate_image(prompt=prompt, output_path=output_path)
+    Returns:
+        bytes: The generated video as bytes.
+    """
+    global video_result
+    files = {'image': ('image.jpg', image_bytes, 'image/jpeg')}
+    response = requests.post(VIDEO_SERVER, 
+        files=files,
+        data={'prompt': specs['video_prompt']}
+    )
+    video_result = response.content
 
-    # Send file to base server
-    with open(output_path, "rb") as file:
-        response = requests.post(BASE_SERVER_URL, files={"file": file})
+def generate_audio(specs):
+    """
+    Generates audio using the audio server.
 
-    return jsonify({"message": "Image sent to base server", "base_response": response.json()})
+    Args:
+        specs (dict): Content specifications.
 
+    Returns:
+        bytes: The generated audio as bytes.
+    """
+    global audio_result
+    response = requests.post(AUDIO_SERVER, json={
+        "script": specs['script'],
+        "audio_prompt": specs['audio_prompt']
+    })
+    audio_result = response.content
 
-@app.route("/text-to-speech", methods=["POST"])
-def text_to_speech():
-    data = request.json
-    text = data.get("text")
-    if not text:
-        return jsonify({"error": "No text provided"}), 400
-
-    output_path = os.path.join(OUTPUT_FOLDER, "generated_speech.wav")
-    SpeechGen.generate_speech(text, output_path=output_path)
-
-    # Send file to base server
-    with open(output_path, "rb") as file:
-        response = requests.post(BASE_SERVER_URL, files={"file": file})
-
-    return jsonify({"message": "Speech sent to base server", "base_response": response.json()})
-
-
-@app.route("/text-to-video", methods=["POST"])
-def text_to_video():
-    if "image" not in request.files:
-        return jsonify({"error": "No image file provided"}), 400
-
-    image_file = request.files["image"]
-    image_path = os.path.join(UPLOAD_FOLDER, image_file.filename)
-    image_file.save(image_path)
-
-    data = request.form
-    prompt = data.get("prompt", "Default video prompt")
-
-    output_path = os.path.join(OUTPUT_FOLDER, "generated_video.mp4")
-    VideoGen.generate_video(prompt=prompt, image_path=image_path)
-
-    # Send file to base server
-    with open(output_path, "rb") as file:
-        response = requests.post(BASE_SERVER_URL, files={"file": file})
-
-    return jsonify({"message": "Video sent to base server", "base_response": response.json()})
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+if __name__ == '__main__':
+    app.run(port=5000, threaded=True)
