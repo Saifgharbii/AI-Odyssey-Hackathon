@@ -1,80 +1,200 @@
-# AI Content Generator for Business
+<a name="readme-top"></a>
+<div align="center">
 
-## Project Overview
-This AI-powered content generator is designed to help businesses create engaging digital content efficiently. By leveraging multiple AI models, it extracts trending TikTok content and processes it to generate text, images, and videos. The project is part of our submission for the **AI-Odyssey-Hackathon**.
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+[![LinkedIn][linkedin-shield]][linkedin-url-saif]
+[![LinkedIn][linkedin-shield]][linkedin-url-brahim]
+[![LinkedIn][linkedin-shield]][linkedin-url-ibrahim]
+</div>
+
+<!-- PROJECT LOGO --> 
+<br />
+<div align="center">
+    <h1 style="font-size:35px">AI Content Generator for Business </h1>
+    <br>
+    <a href="https://github.com/Saifgharbii/AI-Odyssey-Hackathon">
+      <img src="./Logo.jpg" alt="Logo" width="256" height="256">
+    </a>
+    <h1><a style="font-size:20px" href="https://github.com/Saifgharbii/AI-Odyssey-Hackathon" target="_blank">AI-Odyssey-Hackathon Project</a></h1>
+    <br>
+    <p style="font-size:20px" align="center">
+        An AI-powered platform for generating engaging digital content
+    <br>
+    <br>
+    <a href="https://github.com/Saifgharbii/AI-Odyssey-Hackathon/issues/new?labels=bug">Report Bug</a>
+    ·
+    <a href="https://github.com/Saifgharbii/AI-Odyssey-Hackathon/issues/new?labels=enhancement">Request Feature</a>
+  </p>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#about-the-project">About The Project</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#future-enhancements">Future Enhancements</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+The AI Content Generator is a comprehensive solution designed to help businesses create engaging digital content efficiently. By leveraging multiple AI models, it extracts trending TikTok content and processes it to generate text, images, and videos. This project is our submission for the **AI-Odyssey-Hackathon**.
+
+<div style="display:flex;flex-direction:column;justify-content:canter;" align="center">
+    <div>
+        <img  width="90%" src="./testing/system_workflow.jpg" alt="First Page">
+        <h2>Whole System Workflow</h2>
+    </div>
+    <br/>
+    <div>
+        <img  width="45%" src="./testing/scrapper_system.png" alt="camera">
+        <h2>Scraping System Workflow</h2>
+    </div>
+    <br/>
+    <div>
+        <img  width="200" src="./testing/sequence_diag.png" alt="Sad playlist">
+        <h2>Scraped Videos to User sequence Diagram</h2>
+    </div>
+</div>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## System in Action
+<div style="display:flex;flex-direction:column;justify-content:canter;" align="center">
+
+  [![Watch the video](https://img.youtube.com/vi/icdwRWpN3w8/0.jpg)](https://www.youtube.com/watch?v=icdwRWpN3w8)
+  <h1>Scraping Tiktok Demo</h1>
+</div>
+<br>
+<br>
+<div style="display:flex;flex-direction:column;justify-content:canter;" align="center">
+
+  [![Watch the video](https://img.youtube.com/vi/e4Rox-UEQdU/0.jpg)](https://www.youtube.com/shorts/e4Rox-UEQdU)
+  <h1>Mobile App in action</h1>
+</div>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Features
-- **Content Scraping**: Uses Giminia to extract trending content from TikTok.
-- **Speech-to-Text**: Converts spoken words into text using Seamless-M4T.
-- **Text-to-Image**: Generates images from text prompts using Stable Diffusion.
-- **Image-to-Video**: Creates videos from images using CogVideoX.
-- **Text-to-Speech**: Converts text into speech using Parler-TTS.
+
+- **Content Scraping**: Uses Giminia to extract trending content from TikTok
+- **Speech-to-Text**: Converts spoken words into text using Seamless-M4T
+- **Text-to-Image**: Generates images from text prompts using Stable Diffusion
+- **Image-to-Video**: Creates videos from images using CogVideoX
+- **Text-to-Speech**: Converts text into speech using Parler-TTS
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Architecture
-The project operates on three main servers:
-1. **Main Server (`main_server`)**: Handles primary application logic and API requests.
-2. **Models Workflow (`models_workflow`)**: Manages AI model interactions.
-3. **Speech Generation (`speech_gen`)**: Generates speech from text.
 
-These servers communicate over a shared Docker network to ensure smooth integration.
+The project operates on three main servers that communicate over a shared Docker network:
 
-## Installation & Running the Project
+1. **Main Server (main_server)**: Handles primary application logic and API requests
+2. **Models Workflow (models_workflow)**: Manages AI model interactions
+3. **Speech Generation (speech_gen)**: Generates speech from text
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Installation
+
 ### Prerequisites
-- Docker installed on your system.
-- Python 3.x (for local development and debugging).
 
-### Steps to Run
+- Docker installed on your system
+- Python 3.x (for local development and debugging)
+
+### Setup Instructions
+
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-repo/ai-content-generator.git
-   cd ai-content-generator
-   ```
-2. Ensure Docker is installed and running.
-3. Start the application with:
-   ```bash
-   docker-compose up --build
-   ```
-4. Access the services through the following ports:
-   - **Main Server**: `http://localhost:8000`
-   - **Models Workflow**: `http://localhost:8001`
-   - **Speech Generation**: `http://localhost:8002`
+```bash
+git clone https://github.com/Saifgharbii/AI-Odyssey-Hackathon.git
+cd ai-content-generator
+```
 
-## How the Script Works
-The script is a Flask-based API that handles content generation requests. Below is a breakdown of its core functionalities:
+2. Start the application:
+```bash
+docker-compose up --build
+```
+
+3. Access the services:
+- Main Server: http://localhost:8000
+- Models Workflow: http://localhost:8001
+- Speech Generation: http://localhost:8002
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## How It Works
 
 ### API Endpoints
-#### `/generate_content` (POST)
-This endpoint processes user input, generates content, and returns a final video.
 
-#### Steps:
-1. **Receive Input**: Accepts user input in the form of text or audio.
-   - If audio is provided, it is sent to the **Speech-to-Text server** to convert it into text.
-   - If text is provided, it is processed directly.
-2. **Process Input**: Uses `process_user_input()` from `Gemenai_workflow` to analyze the user’s intent and generate content specifications.
-3. **Generate Image**: Calls the **Image Generation server** to create an image from the prompt.
-4. **Generate Video**: Sends the generated image to the **Video Generation server**, along with a video prompt.
-5. **Generate Audio**: Uses the **Text-to-Speech server** to generate an audio clip from the script.
-6. **Mix Audio & Video**: Combines the generated audio and video using `moviepy` to create a final video output.
-7. **Return Final Video**: Sends the processed video file back to the user as a response.
+#### /generate_content (POST)
+Processes user input and generates content through the following steps:
 
-### Functions Explained
-#### `mix_audio_video(video_bytes, audio_bytes)`
-- Mixes the generated audio and video files into a single video file.
-- Uses `moviepy` to overlay audio onto the video and exports the final video.
+1. **Input Processing**
+   - Accepts text or audio input
+   - Converts audio to text if necessary
 
-#### `generate_video(specs, image_bytes)`
-- Sends an image and video prompt to the **Video Generation server** to create a video.
+2. **Content Generation**
+   - Analyzes user intent
+   - Generates images from prompts
+   - Creates videos from images
+   - Produces audio from scripts
 
-#### `generate_audio(specs)`
-- Calls the **Audio Generation server** with the generated script to create an audio file.
+3. **Final Output**
+   - Combines audio and video
+   - Returns processed video file
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Future Enhancements
-- Improve speech-to-text accuracy by integrating better models.
-- Add more customization options for video editing.
-- Enhance scalability by deploying services using Kubernetes.
+
+- Improve speech-to-text accuracy with better models
+- Add more customization options for video editing
+- Enhance scalability through Kubernetes deployment
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## License
-This project is licensed under the MIT License.
 
-**Good luck to us in the AI-Odyssey-Hackathon!** 🚀
+Distributed under the MIT License. See `LICENSE` for more information.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- MARKDOWN LINKS & IMAGES -->
+[contributors-shield]: https://img.shields.io/github/contributors/Saifgharbii/AI-Odyssey-Hackathon.svg?style=for-the-badge
+[contributors-url]: https://github.com/Saifgharbii/AI-Odyssey-Hackathon/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Saifgharbii/AI-Odyssey-Hackathon.svg?style=for-the-badge
+[forks-url]: https://github.com/Saifgharbii/AI-Odyssey-Hackathon/network/members
+[stars-shield]: https://img.shields.io/github/stars/Saifgharbii/AI-Odyssey-Hackathon.svg?style=for-the-badge
+[stars-url]: https://github.com/Saifgharbii/AI-Odyssey-Hackathon/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Saifgharbii/AI-Odyssey-Hackathon.svg?style=for-the-badge
+[issues-url]: https://github.com/Saifgharbii/AI-Odyssey-Hackathon/issues
+[license-shield]: https://img.shields.io/github/license/Saifgharbii/AI-Odyssey-Hackathon.svg?style=for-the-badge
+[license-url]: https://github.com/Saifgharbii/AI-Odyssey-Hackathon/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/chater-marzougui-342125299/
+[linkedin-url-saif]: https://www.linkedin.com/in/saif-gharbi-8956612a2/
+[linkedin-url-brahim]: https://www.linkedin.com/in/brahim-ghouma/
+[linkedin-url-ibrahim]: https://www.linkedin.com/in/ibrahim-darghouthi/
