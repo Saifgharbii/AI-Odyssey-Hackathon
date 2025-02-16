@@ -5,93 +5,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TikTok Scraper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7fa;
-            color: #333;
-        }
-
-        header {
-            background-color: #4caf50;
-            color: white;
-            text-align: center;
-            padding: 20px 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
-
-        .container {
-            width: 80%;
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: #03dac6;
         }
 
         label {
-            font-size: 1.1em;
-            margin-bottom: 10px;
+            font-weight: bold;
             display: block;
-        }
-
-        select,
-        button {
-            font-size: 1em;
-            padding: 10px;
             margin-top: 10px;
-            width: 100%;
-            border: 2px solid #ccc;
-            border-radius: 5px;
-            outline: none;
-            transition: border-color 0.3s ease;
         }
 
-        select:focus,
-        button:focus {
-            border-color: #4caf50;
+        select, input {
+            width: 95%;
+            padding: 12px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 5px;
+            background: #1e1e1e;
+            color: #fff;
+            outline: none;
         }
 
         button {
-            background-color: #4caf50;
-            color: white;
+            margin-top: 15px;
+            padding: 12px 20px;
             border: none;
+            border-radius: 5px;
+            background: #03dac6;
+            color: #121212;
+            font-size: 16px;
             cursor: pointer;
+            transition: background 0.3s ease;
         }
 
         button:hover {
-            background-color: #45a049;
-        }
-
-        #status {
-            margin-top: 20px;
-            font-size: 1.1em;
-            color: #ff5722;
-        }
-
-        h2 {
-            margin-top: 30px;
-            font-size: 1.8em;
-            color: #333;
+            background: #00c4b4;
         }
 
         pre {
-            background-color: #f1f1f1;
-            padding: 20px;
+            background: #1e1e1e;
+            padding: 15px;
             border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            font-size: 1.1em;
-            overflow-x: auto;
-            word-wrap: break-word;
+            width: 95%;
             white-space: pre-wrap;
-            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
     </style>
     <script>
@@ -129,10 +107,8 @@
 </head>
 
 <body>
-    <header>
-        <h1>TikTok Scraper</h1>
-    </header>
     <div class="container">
+        <h1>TikTok Scraper</h1>
         <label for="topic-select">Select a Topic:</label>
         <select id="topic-select">
             {% for index in range(topics|length) %}
