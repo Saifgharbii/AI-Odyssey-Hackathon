@@ -1,3 +1,4 @@
+from flask import Flask, jsonify, render_template, request
 import os
 import json
 import time
@@ -8,6 +9,8 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
+
+app = Flask(__name__)
 
 # Configure Gemini API
 API_KEY = os.getenv("GENAI_API_KEY")
@@ -119,7 +122,7 @@ def initiate_topic_scraping(topic_index):
     request_payload = {
         "search_type": "topic",
         "search_query": str(topic_index),
-        "max_videos": 6
+        "max_videos": 1
     }
     headers = {"Content-Type": "application/json"}
 
@@ -140,7 +143,7 @@ def initiate_hashtag_scraping(topic_index, hashtag):
     request_payload = {
         "search_type": "hashtag",
         "search_query": hashtag,
-        "max_videos": 5
+        "max_videos": 1
     }
     headers = {"Content-Type": "application/json"}
 
@@ -190,5 +193,23 @@ def monitor_scraping_status(scrape_id, topic_index):
         except requests.RequestException as err:
             print(f"Error checking scraping status: {err}")
 
+@app.route("/start-scraping/<int:topic_index>", methods=["GET"])
+def start_scraping(topic_index):
+    initiate_topic_scraping(topic_index)
+    return jsonify({"message": f"Started scraping for topic index {topic_index}"})
+
+@app.route("/get-analysis", methods=["GET"])
+def get_analysis():
+    try:
+        with open(DAILY_ANALYSIS_TEXT, "r") as file:
+            content = file.read()
+        return jsonify({"analysis": content})
+    except FileNotFoundError:
+        return jsonify({"error": "Analysis file not found."}), 404
+
+@app.route("/", methods=["GET"])
+def home():
+    return render_template("index.html", topics=topics)
+
 if __name__ == "__main__":
-    initiate_topic_scraping(4)
+    app.run(host="0.0.0.0", port=5000)

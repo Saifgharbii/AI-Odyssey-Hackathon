@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Scraper</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fa;
+            color: #333;
+        }
+
+        header {
+            background-color: #4caf50;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        select,
+        button {
+            font-size: 1em;
+            padding: 10px;
+            margin-top: 10px;
+            width: 100%;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus,
+        button:focus {
+            border-color: #4caf50;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #ff5722;
+        }
+
+        h2 {
+            margin-top: 30px;
+            font-size: 1.8em;
+            color: #333;
+        }
+
+        pre {
+            background-color: #f1f1f1;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            overflow-x: auto;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+    </style>
+    <script>
+        async function startScraping() {
+            const topicIndex = document.getElementById('topic-select').value;
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = 'Starting scraping...';
+
+            try {
+                const response = await fetch(`/start-scraping/${topicIndex}`);
+                const result = await response.json();
+                statusDiv.textContent = result.message;
+                pollAnalysis();
+            } catch (error) {
+                statusDiv.textContent = 'Failed to start scraping.';
+            }
+        }
+
+        async function pollAnalysis() {
+            const statusDiv = document.getElementById('status');
+            while (true) {
+                try {
+                    const response = await fetch('/get-analysis');
+                    const result = await response.json();
+                    if (result.analysis) {
+                        document.getElementById('analysis').textContent = result.analysis;
+                    }
+                } catch (error) {
+                    console.error('Error fetching analysis:', error);
+                }
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <header>
+        <h1>TikTok Scraper</h1>
+    </header>
+    <div class="container">
+        <label for="topic-select">Select a Topic:</label>
+        <select id="topic-select">
+            {% for index in range(topics|length) %}
+            <option value="{{ index }}">{{ topics[index] }}</option>
+            {% endfor %}
+        </select>
+        <button onclick="startScraping()">Start Scraping</button>
+        <div id="status"></div>
+        <h2>Analysis Output:</h2>
+        <pre id="analysis"></pre>
+    </div>
+</body>
+
+</html>
